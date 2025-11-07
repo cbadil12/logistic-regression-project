@@ -17,29 +17,33 @@ load_dotenv()
 # --------------------------------------------------------------
 # Functions
 # --------------------------------------------------------------
-def db_connect(): #  DDBB conection
+
+#  DDBB conection
+def db_connect(): 
     engine = create_engine(os.getenv('DATABASE_URL'))
     engine.connect()
     return engine
 
-def ensure_package(package_name: str): #  Ensures dependencies are installed
+#  Ensures dependencies are installed
+def ensure_package(package_name: str): 
     try:
         importlib.import_module(package_name)
     except ImportError:
         print(f"🔧 Installing missing package: {package_name}")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package_name])
 
+# Lunches Streamlit, extra_args allows to pass different flags
 def run_streamlit_app(app_path: str, wait_secs: int, port: int = 8501, extra_args=None):
     """Lanza Streamlit; extra_args permite pasar flags personalizados tras '--'."""
     extra_args = extra_args or []
     cmd = [
         sys.executable, "-m", "streamlit", "run", app_path,
         "--server.port", str(port),
-        "--",  # todo lo que vaya después son args para tu script Streamlit
+        "--",
         *extra_args
     ]
-    subprocess.Popen(cmd, env=os.environ.copy())
-    time.sleep(sec)
+    process = subprocess.Popen(cmd, env=os.environ.copy())
+    time.sleep(wait_secs)
     try:
         process.wait()
     except KeyboardInterrupt:
